@@ -124,9 +124,9 @@ export function put(url, data = {}, headers = {}) {
  * @returns {Promise}
  */
 export function jsonp(url, query = {}) {
-    return fetch({
+    return axios({
         url,
-        data: {
+        params: {
             ...query,
             cb: 'callback',
             t: (new Date()).getTime()
@@ -136,10 +136,16 @@ export function jsonp(url, query = {}) {
         headers: {}
     }).then(res => {
         const data = {};
-        const callback = (item) => Object.assign(data, item);
-
-        eval(res);
-
+        // 替换eval实现，使用正则提取JSON数据
+        const jsonMatch = res.match(/callback\((\{.*?\})\)/);
+        if (jsonMatch && jsonMatch[1]) {
+            try {
+                return JSON.parse(jsonMatch[1]);
+            } catch (e) {
+                console.error('Failed to parse JSONP response', e);
+                return data;
+            }
+        }
         return data;
     });
 }

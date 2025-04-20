@@ -32,7 +32,7 @@ rules:
     - always
   camelcase: 0
   strict: 0
-  no-eval: 0
+  no-eval: 2
   max-len: [1, { code: 120 }]
   global-require: 0
   no-unused-vars: 1
