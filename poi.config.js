@@ -9,7 +9,10 @@
 const path = require('path');
 
 module.exports = (options, req) => ({
-    entry: 'src/index.js',
+    entry: {
+        client: 'src/index.js',
+        'js/init': 'src/js/init.js'
+    },
     host: '0.0.0.0',
     filename: {
         js: '[name].js',

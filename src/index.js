@@ -20,11 +20,15 @@ Vue.config.devtools = true;
 Vue.use(IScrollView, IScroll);
 Vue.use(ElementUI);
 
-export default new Vue({
+// 创建Vue实例并明确挂载到window对象上
+const app = new Vue({
     i18n,
     store,
     render: c => c(main)
 }).$mount('#app');
+
+// 确保app在全局作用域可用
+window.app = app;
 
 if (chrome && chrome.runtime) {
     // 添加书签

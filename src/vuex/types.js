@@ -15,6 +15,7 @@ export const RECEIVE_SEARCH_ENGINES = 'RECEIVE_SEARCH_ENGINES';
 // GitHub
 // ===========================
 export const RECEIVE_GITHUB_TRENDINGS = 'RECEIVE_GITHUB_TRENDINGS';
+export const SET_LAST_QUERY = 'SET_LAST_QUERY';
 
 // 书签
 // ===========================

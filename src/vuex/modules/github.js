@@ -40,6 +40,7 @@ const fetchTrendingRepos = async (lang, since, type = 'repositories') => {
 
 export const getters = {
     trendings: state => state.trendings,
+    lastQuery: state => state.lastQuery || {}
 };
 
 export const actions = {
@@ -53,11 +54,22 @@ export const actions = {
      * @param {String} query.type repositories、developers
      * @returns {Promise}
      */
-    async fetchTrending ({ commit }, query = {}) {
+    async fetchTrending ({ commit, state }, query = {}) {
+        // 确保query中有必要的属性
+        query = {
+            lang: [],
+            since: 'weekly',
+            type: 'repositories',
+            ...query
+        };
+
+        // 保存最后的查询，用于刷新
+        commit(types.SET_LAST_QUERY, query);
+
         const data = await storage.getItem(JSON.stringify(query));
 
         if (
-            data && data.repos.length && (
+            data && data.repos && data.repos.length && (
                 (query.since === 'daily' && data.toDay === toDay) ||
                 (query.since === 'weekly' && data.toWeek === toWeek) ||
                 (query.since === 'monthly' && data.toMonth === toMonth)
@@ -72,14 +84,17 @@ export const actions = {
         let repos = [];
         let isAllLanguage = false;
 
-        if (query.lang.length) {
-            query.lang.map(item => {
+        // 安全地检查query.lang
+        if (Array.isArray(query.lang) && query.lang.length) {
+            query.lang.forEach(item => {
                 if (item === '') isAllLanguage = true;
-                return item;
             });
+        } else {
+            // 如果query.lang不是数组或为空，设置为全部语言
+            isAllLanguage = true;
         }
 
-        if (!query.lang.length || isAllLanguage) {
+        if (isAllLanguage) {
             repos = await fetchTrendingRepos('', since, type);
         } else {
             await Promise.map(query.lang, async lang => {
@@ -108,6 +123,9 @@ export const mutations = {
     [types.RECEIVE_GITHUB_TRENDINGS](state, data) {
         state.trendings = data;
     },
+    [types.SET_LAST_QUERY](state, query) {
+        state.lastQuery = query;
+    }
 };
 
 export default {
@@ -117,5 +135,6 @@ export default {
     namespaced: true,
     state: {
         trendings: [],
+        lastQuery: null
     },
 };
